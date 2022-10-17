@@ -5,7 +5,7 @@
 
 
 
-CREATE DATABASE `crud` /*!40100 DEFAULT CHARACTER SET utf8 */;
+CREATE DATABASE `crud`;
 
 
 CREATE TABLE  `crud`.`employees` (
