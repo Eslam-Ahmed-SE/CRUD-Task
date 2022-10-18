@@ -24,34 +24,39 @@ import java.util.logging.Logger;
  */
 public class Employees {
 
-    static final String DB_URL = "jdbc:mysql://localhost/CRUD";
-    static final String USER = "root";
-    static final String PASS = "root";
+//    static final String DB_URL = "jdbc:mysql://localhost/CRUD";
+    static final String databaseURL = "jdbc:ucanaccess://C://Users//Eslam//Documents//CRUD_Task.accdb";
+//    static final String USER = "root";
+//    static final String PASS = "root";
 
     public void start() {
-        String QUERY = "SELECT * FROM tst";
-        try (java.sql.Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
-                Statement stmt = conn.createStatement();
-                ResultSet rs = stmt.executeQuery(QUERY);) {
-            // Extract data from result set
-            while (rs.next()) {
-                // Retrieve by column name
-                System.out.print("ID: " + rs.getInt("id"));
-                System.out.print(", First: " + rs.getString("name"));
-                System.out.println(", Last: " + rs.getString("phone"));
+        try (Connection connection = DriverManager.getConnection(databaseURL)) {
+            String sql = "SELECT * FROM tst";
+
+            Statement statement = connection.createStatement();
+            ResultSet result = statement.executeQuery(sql);
+
+            while (result.next()) {
+                int id = result.getInt("ID");
+                String fullname = result.getString("name");
+                String email = result.getString("address");
+                int phone = result.getInt("Phone");
+                String level = result.getString("level");
+
+                System.out.println(id + ", " + fullname + ", " + email + ", " + phone);
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (SQLException ex) {
+            Logger.getLogger(Employees.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
     public Object[][] getAllEmp() {
         String QUERY = "SELECT * FROM employees";
         List<List<Object>> data = new ArrayList<List<Object>>();
-        try (java.sql.Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
-                Statement stmt = conn.createStatement();
-                ResultSet rs = stmt.executeQuery(QUERY);) {
+        try (Connection connection = DriverManager.getConnection(databaseURL)) {
 
+            Statement statement = connection.createStatement();
+            ResultSet rs = statement.executeQuery(QUERY);
             // Extract data from result set
             while (rs.next()) {
                 data.add(Arrays.asList(
@@ -81,11 +86,12 @@ public class Employees {
         String QUERY = "SELECT * FROM employees ORDER BY id ASC";
 
         int i = 0;
-        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
-                Statement stmt = conn.createStatement();
-                ResultSet rs = stmt.executeQuery(QUERY);) {
+        try (Connection connection = DriverManager.getConnection(databaseURL)) {
+
+            Statement statement = connection.createStatement();
+            ResultSet rs = statement.executeQuery(QUERY);
             while (rs.next()) {
-                i=rs.getInt("id");
+                i = rs.getInt("id");
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -93,14 +99,15 @@ public class Employees {
         System.out.println("last id : " + i);
         return i;
     }
-    
+
     public Boolean addEmp(String name, String address, int phone, String level) {
         int newID = getLastRecord() + 1;
         String QUERY = "insert into employees (id, name, address, phone, level) values (" + newID + ", '" + name + "', '" + address + "', " + phone + ", '" + level + "')";
-        try (java.sql.Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
-                Statement stmt = conn.createStatement();) {
+        try (Connection connection = DriverManager.getConnection(databaseURL)) {
+
+            Statement statement = connection.createStatement();
+            int rs = statement.executeUpdate(QUERY);
             System.out.println("q: " + QUERY);
-            stmt.executeUpdate(QUERY);
             System.out.println("inserted");
             return true;
         } catch (SQLException e) {
@@ -110,11 +117,12 @@ public class Employees {
     }
 
     public Boolean deleteEmp(int id) {
-        try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
-                Statement stmt = conn.createStatement();) {
-            String sql = "DELETE FROM employees "
+        try (Connection connection = DriverManager.getConnection(databaseURL)) {
+            String QUERY = "DELETE FROM employees "
                     + "WHERE id = " + id;
-            stmt.executeUpdate(sql);
+
+            Statement statement = connection.createStatement();
+            int rs = statement.executeUpdate(QUERY);
             return true;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -124,15 +132,26 @@ public class Employees {
 
     public Boolean updateEmp(int id, String name, String address, int phone, String level) {
 
+//        String sql = "INSERT INTO Contacts (Full_Name, Email, Phone) VALUES (?, ?, ?)";
+             
         String QUERY = "update employees set "
-                + "name='" + name + "',"
-                + "address='" + address + "',"
-                + "phone='" + phone + "',"
-                + "level='" + level + "' where id=" + id;
-        try (java.sql.Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
-                Statement stmt = conn.createStatement();) {
+                + "name=?, address=?, phone=?, level=? where id=" + id;
+        
+        try (Connection connection = DriverManager.getConnection(databaseURL)) {
+
+            PreparedStatement preparedStatement = connection.prepareStatement(QUERY);
+            preparedStatement.setString(1, name);
+            preparedStatement.setString(2, address);
+            preparedStatement.setInt(3, phone);
+            preparedStatement.setString(4, level);
+            
+            int row = preparedStatement.executeUpdate();
+             
+            if (row > 0) {
+                System.out.println("A row has been inserted successfully.");
+            }
+            
             System.out.println("q: " + QUERY);
-            stmt.executeUpdate(QUERY);
             System.out.println("updated");
             return true;
         } catch (SQLException e) {
