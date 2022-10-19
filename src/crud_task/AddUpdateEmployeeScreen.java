@@ -69,16 +69,19 @@ public class AddUpdateEmployeeScreen {
     public void start() {
         JFrame frame = new JFrame("Add Employee");
 //        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(550, 225);
+        frame.setSize(650, 225);
         frame.setLayout(new BorderLayout());
 
         JLabel nameLabel = new JLabel("Name: ");
         nameLabel.setPreferredSize(new Dimension(60, 25));
-        JLabel nameError = new JLabel("Name can not contain numbers");
+        JLabel nameError = new JLabel("Name can only be letters");
         nameError.setForeground(Color.red);
         nameError.setVisible(false);
         JLabel addressLabel = new JLabel("Address: ");
         addressLabel.setPreferredSize(new Dimension(60, 25));
+        JLabel addressError = new JLabel("address can only be letters and numbers");
+        addressError.setForeground(Color.red);
+        addressError.setVisible(false);
         JLabel phoneLabel = new JLabel("Phone: ");
         phoneLabel.setPreferredSize(new Dimension(60, 25));
         JLabel phoneError = new JLabel("Phone can be numbers only");
@@ -86,6 +89,9 @@ public class AddUpdateEmployeeScreen {
         phoneError.setVisible(false);
         JLabel levelLabel = new JLabel("Level: ");
         levelLabel.setPreferredSize(new Dimension(60, 25));
+        JLabel levelError = new JLabel("level can only be letters");
+        levelError.setForeground(Color.red);
+        levelError.setVisible(false);
 
         JLabel addInfo = new JLabel("Info");
         addInfo.setForeground(Color.green);
@@ -114,6 +120,16 @@ public class AddUpdateEmployeeScreen {
             @Override
             public void actionPerformed(ActionEvent e) {
                 boolean err = false;
+                
+                nameTextField.setBorder(new LineBorder(Color.black, 1));
+                nameError.setVisible(false);
+                addressTextField.setBorder(new LineBorder(Color.black, 1));
+                addressError.setVisible(false);
+                phoneTextField.setBorder(new LineBorder(Color.black, 1));
+                phoneError.setVisible(false);
+                levelTextField.setBorder(new LineBorder(Color.black, 1));
+                levelError.setVisible(false);
+                addInfo.setVisible(false);
 
                 String phone = phoneTextField.getText();
                 if (!Pattern.matches("^\\d*$", phone)) {
@@ -123,18 +139,37 @@ public class AddUpdateEmployeeScreen {
                     err = true;
                 }
 
-                String name = nameTextField.getText();
-                if (Pattern.matches(".*\\d+.*", name)) {
+//                System.out.println("matches: ? " + nameTextField.getText().matches("[A-Za-z ]*"));
+                if (!nameTextField.getText().matches("[A-Za-z ]*")) {
                     nameTextField.setBorder(new LineBorder(Color.red, 1));
                     nameError.setVisible(true);
 
                     err = true;
+                    System.out.println("name wrong");
                 }
+                
+                System.out.println("matches: ? " + addressTextField.getText().matches("[A-Za-z \\d]*"));
+                if (!addressTextField.getText().matches("[A-Za-z \\d\\.,]*")) {
+                    addressTextField.setBorder(new LineBorder(Color.red, 1));
+                    addressError.setVisible(true);
 
+                    err = true;
+                    System.out.println("address wrong");
+                }
+                
+                if (!levelTextField.getText().matches("[A-Za-z ]*")) {
+                    levelTextField.setBorder(new LineBorder(Color.red, 1));
+                    levelError.setVisible(true);
+
+                    err = true;
+                    System.out.println("level wrong");
+                }
+                
+                
                 if (nameTextField.getText().equals("")
-                        && addressTextField.getText().equals("")
-                        && phoneTextField.getText().equals("")
-                        && levelTextField.getText().equals("")) {
+                        || addressTextField.getText().equals("")
+                        || phoneTextField.getText().equals("")
+                        || levelTextField.getText().equals("")) {
 
                     addInfo.setText("Some fields are empty");
                     addInfo.setForeground(Color.red);
@@ -143,10 +178,14 @@ public class AddUpdateEmployeeScreen {
                     err = true;
                 }
 
+                System.out.println("err is : " + err);
                 if (!err) {
+                    System.out.println("inside if err is : " + err);
+
                     if (!isUpdateScreen) {
                         if (new Employees().addEmp(nameTextField.getText(), addressTextField.getText(), Integer.parseInt(phoneTextField.getText()), levelTextField.getText())) {
                             addInfo.setText("Added successfully");
+                            addInfo.setForeground(Color.green);
                             addInfo.setVisible(true);
                         } else {
                             addInfo.setText("Something went wrong");
@@ -183,6 +222,7 @@ public class AddUpdateEmployeeScreen {
 
         flow2.add(addressLabel);
         flow2.add(addressTextField);
+        flow2.add(addressError);
 
         flow3.add(phoneLabel);
         flow3.add(phoneTextField);
@@ -190,6 +230,7 @@ public class AddUpdateEmployeeScreen {
 
         flow4.add(levelLabel);
         flow4.add(levelTextField);
+        flow4.add(levelError);
 
         flow5.add(addInfo);
         flow5.add(clearBtn);
