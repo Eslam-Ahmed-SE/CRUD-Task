@@ -15,6 +15,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Base64;
 import java.util.regex.Pattern;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -120,7 +121,7 @@ public class AddUpdateEmployeeScreen {
             @Override
             public void actionPerformed(ActionEvent e) {
                 boolean err = false;
-                
+
                 nameTextField.setBorder(new LineBorder(Color.black, 1));
                 nameError.setVisible(false);
                 addressTextField.setBorder(new LineBorder(Color.black, 1));
@@ -147,7 +148,7 @@ public class AddUpdateEmployeeScreen {
                     err = true;
                     System.out.println("name wrong");
                 }
-                
+
                 System.out.println("matches: ? " + addressTextField.getText().matches("[A-Za-z \\d]*"));
                 if (!addressTextField.getText().matches("[A-Za-z \\d\\.,]*")) {
                     addressTextField.setBorder(new LineBorder(Color.red, 1));
@@ -156,7 +157,7 @@ public class AddUpdateEmployeeScreen {
                     err = true;
                     System.out.println("address wrong");
                 }
-                
+
                 if (!levelTextField.getText().matches("[A-Za-z ]*")) {
                     levelTextField.setBorder(new LineBorder(Color.red, 1));
                     levelError.setVisible(true);
@@ -164,8 +165,7 @@ public class AddUpdateEmployeeScreen {
                     err = true;
                     System.out.println("level wrong");
                 }
-                
-                
+
                 if (nameTextField.getText().equals("")
                         || addressTextField.getText().equals("")
                         || phoneTextField.getText().equals("")
@@ -254,5 +254,7 @@ public class AddUpdateEmployeeScreen {
             }
         });
     }
+
+    
 
 }

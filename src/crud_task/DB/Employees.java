@@ -31,27 +31,14 @@ public class Employees {
 
     public void start() {
         try (Connection connection = DriverManager.getConnection(databaseURL)) {
-            String sql = "SELECT * FROM tst";
-
-            Statement statement = connection.createStatement();
-            ResultSet result = statement.executeQuery(sql);
-
-            while (result.next()) {
-                int id = result.getInt("ID");
-                String fullname = result.getString("name");
-                String email = result.getString("address");
-                int phone = result.getInt("Phone");
-                String level = result.getString("level");
-
-                System.out.println(id + ", " + fullname + ", " + email + ", " + phone);
-            }
+            
         } catch (SQLException ex) {
             Logger.getLogger(Employees.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
     public Object[][] getAllEmp() {
-        String QUERY = "SELECT * FROM employees";
+        String QUERY = "SELECT * FROM employees ORDER BY created ASC";
         List<List<Object>> data = new ArrayList<List<Object>>();
         try (Connection connection = DriverManager.getConnection(databaseURL)) {
 
@@ -60,7 +47,7 @@ public class Employees {
             // Extract data from result set
             while (rs.next()) {
                 data.add(Arrays.asList(
-                        rs.getInt("id"),
+                        decrypt(rs.getInt("id")),
                         rs.getString("name"),
                         rs.getString("address"),
                         new Integer(rs.getInt("phone")),
@@ -74,7 +61,7 @@ public class Employees {
         for (int i = 0; i < data.size(); i++) {
             for (int j = 0; j < 5; j++) {
                 returnData[i][j] = data.get(i).get(j);
-                System.out.println("i: " + i + " " + data.get(i).get(j));
+//                System.out.println("i: " + i + " " + data.get(i).get(j));
             }
         }
 
@@ -83,7 +70,7 @@ public class Employees {
     }
 
     private int getLastRecord() {
-        String QUERY = "SELECT * FROM employees ORDER BY id ASC";
+        String QUERY = "SELECT * FROM employees ORDER BY created ASC";
 
         int i = 0;
         try (Connection connection = DriverManager.getConnection(databaseURL)) {
@@ -101,13 +88,17 @@ public class Employees {
     }
 
     public Boolean addEmp(String name, String address, int phone, String level) {
-        int newID = getLastRecord() + 1;
-        String QUERY = "insert into employees (id, name, address, phone, level) values (" + newID + ", '" + name + "', '" + address + "', " + phone + ", '" + level + "')";
+        int lastID = getLastRecord();
+        System.out.println("last id : " + lastID);
+        int newID = ((lastID==0)? 0:decrypt(lastID)) + 1;
+        System.out.println("new id : " + newID + " encrypt: " + encrypt(newID));
+        String QUERY = "insert into employees (id, name, address, phone, level, created) values (" + encrypt(newID) + ", '" + name + "', '" + address + "', " + phone + ", '" + level + "', '" + new java.sql.Timestamp(new java.util.Date().getTime()) +"')";
+        System.out.println("q: " + QUERY);
         try (Connection connection = DriverManager.getConnection(databaseURL)) {
 
             Statement statement = connection.createStatement();
             int rs = statement.executeUpdate(QUERY);
-            System.out.println("q: " + QUERY);
+            
             System.out.println("inserted");
             return true;
         } catch (SQLException e) {
@@ -119,7 +110,7 @@ public class Employees {
     public Boolean deleteEmp(int id) {
         try (Connection connection = DriverManager.getConnection(databaseURL)) {
             String QUERY = "DELETE FROM employees "
-                    + "WHERE id = " + id;
+                    + "WHERE id = " + encrypt(id);
 
             Statement statement = connection.createStatement();
             int rs = statement.executeUpdate(QUERY);
@@ -135,7 +126,7 @@ public class Employees {
 //        String sql = "INSERT INTO Contacts (Full_Name, Email, Phone) VALUES (?, ?, ?)";
              
         String QUERY = "update employees set "
-                + "name=?, address=?, phone=?, level=? where id=" + id;
+                + "name=?, address=?, phone=?, level=? where id=" + encrypt(id);
         
         try (Connection connection = DriverManager.getConnection(databaseURL)) {
 
@@ -158,6 +149,38 @@ public class Employees {
             e.printStackTrace();
         }
         return false;
+    }
+    
+    int encrypt(int id) {
+        String strID = Integer.toString(id);
+        byte[] bytesEncoded = Base64.getEncoder().encode(strID.getBytes());
+
+        int value = 0;
+        for (byte b : bytesEncoded) {
+            value = (value << 8) + (b & 0xFF);
+        }
+
+//        System.out.println("encoded value is " + new String(bytesEncoded));
+//        System.out.println("encoded value is " + value);
+        return value;
+    }
+
+    int decrypt(int encoded) {
+        byte[] bytesEncoded = new byte[Integer.BYTES];
+        int length = bytesEncoded.length;
+        for (int i = 0; i < length; i++) {
+            bytesEncoded[length - i - 1] = (byte) (encoded & 0xFF);
+            encoded >>= 8;
+        }
+
+        byte[] valueDecoded = Base64.getDecoder().decode(bytesEncoded);
+
+        int value = Integer.valueOf(new String(valueDecoded));
+//        System.out.println("Decoded value is " + new String(valueDecoded));
+//        System.out.println("Decoded value is " + value + "-");
+        
+        return value;
+
     }
 
 }
