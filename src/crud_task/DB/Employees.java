@@ -50,7 +50,7 @@ public class Employees {
                         decrypt(rs.getInt("id")),
                         rs.getString("name"),
                         rs.getString("address"),
-                        new Integer(rs.getInt("phone")),
+                        "0" + rs.getInt("phone"),
                         rs.getString("level")
                 ));
             }

@@ -48,7 +48,7 @@ public class AddUpdateEmployeeScreen {
         isUpdateScreen = isUpdate;
         nameTextField.setText(name);
         addressTextField.setText(address);
-        phoneTextField.setText(Integer.toString(phone));
+        phoneTextField.setText("0" + Integer.toString(phone));
         levelTextField.setText(level);
         start();
     }
@@ -134,6 +134,22 @@ public class AddUpdateEmployeeScreen {
 
                 String phone = phoneTextField.getText();
                 if (!Pattern.matches("^\\d*$", phone)) {
+                    phoneError.setText("Phone can be numbers only");
+                    phoneTextField.setBorder(new LineBorder(Color.red, 1));
+                    phoneError.setVisible(true);
+
+                    err = true;
+                }
+                else if (phone.length()!=11){
+                    phoneError.setText("Phone can only be 11 numbers");
+                    phoneTextField.setBorder(new LineBorder(Color.red, 1));
+                    phoneError.setVisible(true);
+
+                    err = true;
+                }
+                else if (!phone.startsWith("01")) {
+                    System.out.println("phone : " + phone + "pattern : " + Pattern.matches("^01", phone) );
+                    phoneError.setText("Phone Should start with '01'");
                     phoneTextField.setBorder(new LineBorder(Color.red, 1));
                     phoneError.setVisible(true);
 
